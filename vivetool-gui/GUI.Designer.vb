@@ -51,9 +51,6 @@ Partial Class GUI
         Me.__DBG_FeatureNaming_DictUpdate = New Telerik.WinControls.UI.RadMenuItem()
         Me.__DBG_AutoLoad_Current_Test = New Telerik.WinControls.UI.RadMenuItem()
         Me.__DBG_RDDL_Build_SelectedIndexTest = New Telerik.WinControls.UI.RadMenuItem()
-        Me.__DBG_SEP6 = New Telerik.WinControls.UI.RadMenuSeparatorItem()
-        Me.__DBG_SentryCrashTest_TimeZoneNotFoundException = New Telerik.WinControls.UI.RadMenuItem()
-        Me.__DBG_CustomDebug = New Telerik.WinControls.UI.RadMenuItem()
         Me.RLE_StatusLabel = New Telerik.WinControls.UI.RadLabelElement()
         Me.RGV_MainGridView = New Telerik.WinControls.UI.RadGridView()
         Me.BGW_PopulateGridView = New System.ComponentModel.BackgroundWorker()
@@ -89,8 +86,8 @@ Partial Class GUI
         '
         resources.ApplyResources(Me.RDDL_Build, "RDDL_Build")
         Me.RDDL_Build.DropDownAnimationEnabled = True
-        Me.RDDL_Build.DropDownMaxSize = New System.Drawing.Size(175, 455)
-        Me.RDDL_Build.DropDownMinSize = New System.Drawing.Size(175, 455)
+        Me.RDDL_Build.DropDownMaxSize = New System.Drawing.Size(400, 455)
+        Me.RDDL_Build.DropDownMinSize = New System.Drawing.Size(400, 455)
         Me.RDDL_Build.DropDownStyle = Telerik.WinControls.RadDropDownStyle.DropDownList
         Me.RDDL_Build.Name = "RDDL_Build"
         Me.RDDL_Build.SortStyle = Telerik.WinControls.Enumerations.SortStyle.Descending
@@ -109,7 +106,7 @@ Partial Class GUI
         '__DBG_MainBtn
         '
         resources.ApplyResources(Me.__DBG_MainBtn, "__DBG_MainBtn")
-        Me.__DBG_MainBtn.Items.AddRange(New Telerik.WinControls.RadItem() {Me.__DBG_RHI, Me.__DBG_GetComments, Me.__DBG_SeeCommentsData, Me.__DBG_SEP1, Me.__DBG_SetRDDL_Build_Text, Me.__DBG_SetRDDL_Build_Text_ToNothing, Me.__DBG_SEP2, Me.__DBG_EnableCommentLoadingFromManualFL, Me.__DBG_DisableCommentLoadingFromManualFL, Me.__DBG_SEP3, Me.__DBG_ChnageLanguage, Me.__DBG_SEP4, Me.__DBG_SetFeaturePriorityToServiceAsTest, Me.__DBG_QueryEnabledState_401122637, Me.__DBG_SEP5, Me.__DBG_FeatureNaming_DictUpdate, Me.__DBG_AutoLoad_Current_Test, Me.__DBG_RDDL_Build_SelectedIndexTest, Me.__DBG_SEP6, Me.__DBG_SentryCrashTest_TimeZoneNotFoundException, Me.__DBG_CustomDebug})
+        Me.__DBG_MainBtn.Items.AddRange(New Telerik.WinControls.RadItem() {Me.__DBG_RHI, Me.__DBG_GetComments, Me.__DBG_SeeCommentsData, Me.__DBG_SEP1, Me.__DBG_SetRDDL_Build_Text, Me.__DBG_SetRDDL_Build_Text_ToNothing, Me.__DBG_SEP2, Me.__DBG_EnableCommentLoadingFromManualFL, Me.__DBG_DisableCommentLoadingFromManualFL, Me.__DBG_SEP3, Me.__DBG_ChnageLanguage, Me.__DBG_SEP4, Me.__DBG_SetFeaturePriorityToServiceAsTest, Me.__DBG_QueryEnabledState_401122637, Me.__DBG_SEP5, Me.__DBG_FeatureNaming_DictUpdate, Me.__DBG_AutoLoad_Current_Test, Me.__DBG_RDDL_Build_SelectedIndexTest})
         Me.__DBG_MainBtn.Name = "__DBG_MainBtn"
         Me.__DBG_MainBtn.TabStop = False
         '
@@ -203,21 +200,6 @@ Partial Class GUI
         Me.__DBG_RDDL_Build_SelectedIndexTest.Name = "__DBG_RDDL_Build_SelectedIndexTest"
         resources.ApplyResources(Me.__DBG_RDDL_Build_SelectedIndexTest, "__DBG_RDDL_Build_SelectedIndexTest")
         '
-        '__DBG_SEP6
-        '
-        Me.__DBG_SEP6.Name = "__DBG_SEP6"
-        resources.ApplyResources(Me.__DBG_SEP6, "__DBG_SEP6")
-        '
-        '__DBG_SentryCrashTest_TimeZoneNotFoundException
-        '
-        Me.__DBG_SentryCrashTest_TimeZoneNotFoundException.Name = "__DBG_SentryCrashTest_TimeZoneNotFoundException"
-        resources.ApplyResources(Me.__DBG_SentryCrashTest_TimeZoneNotFoundException, "__DBG_SentryCrashTest_TimeZoneNotFoundException")
-        '
-        '__DBG_CustomDebug
-        '
-        Me.__DBG_CustomDebug.Name = "__DBG_CustomDebug"
-        resources.ApplyResources(Me.__DBG_CustomDebug, "__DBG_CustomDebug")
-        '
         'RLE_StatusLabel
         '
         Me.RLE_StatusLabel.Name = "RLE_StatusLabel"
@@ -250,16 +232,16 @@ Partial Class GUI
         GridViewTextBoxColumn1.MinWidth = 6
         GridViewTextBoxColumn1.Name = "FeatureName"
         GridViewTextBoxColumn1.ReadOnly = True
-        GridViewTextBoxColumn1.Width = 495
+        GridViewTextBoxColumn1.Width = 535
         GridViewTextBoxColumn2.AllowGroup = False
         GridViewTextBoxColumn2.AllowHide = False
         GridViewTextBoxColumn2.AllowReorder = False
         GridViewTextBoxColumn2.MinWidth = 6
         GridViewTextBoxColumn2.Name = "FeatureID"
         GridViewTextBoxColumn2.ReadOnly = True
-        GridViewTextBoxColumn2.Width = 100
+        GridViewTextBoxColumn2.Width = 80
         GridViewTextBoxColumn3.Name = "FeatureState"
-        GridViewTextBoxColumn3.Width = 110
+        GridViewTextBoxColumn3.Width = 100
         GridViewTextBoxColumn4.AllowFiltering = False
         GridViewTextBoxColumn4.AllowGroup = False
         GridViewTextBoxColumn4.AllowHide = False
@@ -369,8 +351,10 @@ Partial Class GUI
         Me.Controls.Add(Me.P_DataPanel)
         Me.Controls.Add(Me.P_CommandPanel)
         Me.Controls.Add(Me.RSS_MainStatusStrip)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.HelpButton = True
         Me.KeyPreview = True
+        Me.MaximizeBox = False
         Me.Name = "GUI"
         '
         '
@@ -435,7 +419,4 @@ Partial Class GUI
     Friend WithEvents __DBG_FeatureNaming_DictUpdate As RadMenuItem
     Friend WithEvents __DBG_AutoLoad_Current_Test As RadMenuItem
     Friend WithEvents __DBG_RDDL_Build_SelectedIndexTest As RadMenuItem
-    Friend WithEvents __DBG_SEP6 As RadMenuSeparatorItem
-    Friend WithEvents __DBG_SentryCrashTest_TimeZoneNotFoundException As RadMenuItem
-    Friend WithEvents __DBG_CustomDebug As RadMenuItem
 End Class

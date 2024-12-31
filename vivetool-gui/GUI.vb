@@ -1,5 +1,5 @@
 'ViVeTool GUI - Windows Feature Control GUI for ViVeTool
-'Copyright (C) 2024 Peter Strick
+'Copyright (C) 2023 Peter Strick
 '
 'This program is free software: you can redistribute it and/or modify
 'it under the terms of the GNU General Public License as published by
@@ -181,20 +181,6 @@ Public Class GUI
     Private Sub __DBG_RDDL_Build_SelectedIndexTest_Click(sender As Object, e As EventArgs) Handles __DBG_RDDL_Build_SelectedIndexTest.Click
         RDDL_Build.SelectedIndex = -1
     End Sub
-
-    Private Sub __DBG_CustomDebug_Click(sender As Object, e As EventArgs) Handles __DBG_CustomDebug.Click
-        Dim Build = "17643.1000"
-
-        If CInt(Build) >= 17704 Then
-            MsgBox($"Got {CInt(Build)}, is higher than 17704")
-        Else
-            MsgBox($"Got {CInt(Build)}, {My.Resources.Error_SelectBuild17704OrHigherToUseGrouping}")
-        End If
-    End Sub
-
-    Private Sub __DBG_SentryCrashTest_TimeZoneNotFoundException_Click(sender As Object, e As EventArgs) Handles __DBG_SentryCrashTest_TimeZoneNotFoundException.Click
-        Throw New TimeZoneNotFoundException
-    End Sub
 #End Region
 
     ''' <summary>
@@ -228,6 +214,10 @@ Public Class GUI
 #If DEBUG Then
         __DBG_Load()
 #End If
+
+        ' Listen to Application Crashes and show CrashReporter.Net if one occurs.
+        AddHandler Application.ThreadException, AddressOf CrashReporter.ApplicationThreadException
+        AddHandler AppDomain.CurrentDomain.UnhandledException, AddressOf CrashReporter.CurrentDomainOnUnhandledException
 
         ' Comment Code
         AddHandler RMI_AddComment.Click, AddressOf ShowCommentForm
@@ -312,6 +302,45 @@ Public Class GUI
     ''' Populates the Build Combo Box. Used at the Form_Load Event
     ''' </summary>
     Private Sub PopulateBuildComboBox()
+        Dim RepoURL As String = "https://api.github.com/repos/riverar/mach2/git/trees/master"
+        Dim FeaturesFolderURL As String = String.Empty
+
+        ' Gets the URL of the features Folder that is used in section 2
+#Region "1. Get the URL of the features folder"
+        '' Required Headers for the GitHub API
+        'Dim WebClientRepo As New WebClient With {.Encoding = System.Text.Encoding.UTF8}
+        'WebClientRepo.Headers.Add(HttpRequestHeader.ContentType, "application/json; charset=utf-8")
+        'WebClientRepo.Headers.Add(HttpRequestHeader.UserAgent, "PeterStrick/vivetool-gui")
+
+        '' Get the "tree" array from the API JSON Result
+        'Try
+        '    Dim ContentsJSONRepo As String = WebClientRepo.DownloadString(RepoURL)
+        '    Dim JSONObjectRepo As JObject = JObject.Parse(ContentsJSONRepo)
+        '    Dim JSONArrayRepo As JArray = CType(JSONObjectRepo.SelectToken("tree"), JArray)
+
+        '    ' Look in the JSON Array for the element: "path" = "features"
+        '    For Each element In JSONArrayRepo
+        '        If element("path").ToString = "features" Then FeaturesFolderURL = element("url").ToString
+        '    Next
+
+        'Catch webex As WebException
+        '    Dim webex_Response As String
+        '    Try
+        '        webex_Response = My.Resources.Error_NetworkException_GithubAPI_Response & DirectCast(webex.Response, HttpWebResponse).StatusDescription
+        '    Catch ex As Exception
+        '        webex_Response = webex.ToString
+        '    End Try
+
+        '    RadTD.ShowDialog($" {My.Resources.Error_ANetworkErrorOccurred}", My.Resources.Error_ANetworkErrorOccurred,
+        '    My.Resources.Error_NetworkException_GithubAPI, RadTaskDialogIcon.ShieldErrorRedBar, webex, webex_Response, webex_Response)
+        'Catch ex As Exception
+        '    RadTD.ShowDialog($" {My.Resources.Error_AnExceptionOccurred}", My.Resources.Error_AnUnknownExceptionOccurred,
+        '    Nothing, RadTaskDialogIcon.ShieldErrorRedBar, ex, ex.ToString, ex.ToString)
+        'End Try
+#End Region
+#Region "Get the features folder File Contents"
+        ' returns JSON File Contents of riverar/mach2/features
+
         ' Required Headers for the GitHub API
         Dim WebClientFeatures As New WebClient With {.Encoding = System.Text.Encoding.UTF8}
         WebClientFeatures.Headers.Add(HttpRequestHeader.ContentType, "application/json; charset=utf-8")
@@ -319,9 +348,13 @@ Public Class GUI
 
         ' Get the "tree" array from the API JSON Result
         Try
+            ' [DEV] Use Dev JSON to not get rate limited while Testing/Developing
+            ' Dim ContentsJSON As String = TempJSONUsedInDevelopment
             Dim ContentsJSONFeatures As String = WebClientFeatures.DownloadString("https://api.github.com/repos/riverar/mach2/git/trees/master?recursive=1")
             Dim JSONObjectFeatures As JObject = JObject.Parse(ContentsJSONFeatures)
             Dim JSONArrayFeatures As JArray = CType(JSONObjectFeatures.SelectToken("tree"), JArray)
+
+            Dim tempList As New List(Of String)
 
             For Each element In JSONArrayFeatures
                 Select Case element("path").ToString.Split(CChar(".")).Length
@@ -330,23 +363,12 @@ Public Class GUI
                     Case 1 ' Filename; Not used in the Mach2 repo
                         ' Do nothing
                     Case 2 ' Filename.Extension; Ex: 22449.txt
-                        If element("path").ToString.Split(CChar("."))(1) = "txt" AndAlso Not element("path").ToString = "features.txt" Then
-                            ' Second If statement checks for features.txt and ignores it
-                            ' The Tag element holds the absolute part, eg: features/rs_prelease/amd64/12345
-                            ' The Text element holds the friendly name, eg: 12345
-                            Dim item As New RadListDataItem With {
-                                .Tag = element("path").ToString.Split(CChar("."))(0),
-                                .Text = element("path").ToString.Split(CChar("/"))(3).ToString.Split(CChar("."))(0)
-                            }
-                            Invoke(Sub() RDDL_Build.Items.Add(item))
+                        If element("path").ToString.Split(CChar("."))(1) = "txt" Then
+                            tempList.Add(element("path").ToString.Split(CChar("."))(0))
                         End If
                     Case 3 ' File.File.Extension; Ex: 22000.1.txt or 22449_22454_diff.patch
                         If element("path").ToString.Split(CChar("."))(2) = "txt" Then
-                            Dim item As New RadListDataItem With {
-                                .Tag = element("path").ToString.Split(CChar("."))(0) & "." & element("path").ToString.Split(CChar("."))(1),
-                                .Text = element("path").ToString.Split(CChar("/"))(3).Split(CChar("."))(0) & "." & element("path").ToString.Split(CChar("."))(1)
-                            }
-                            Invoke(Sub() RDDL_Build.Items.Add(item))
+                            tempList.Add(element("path").ToString.Split(CChar("."))(0) & "." & element("path").ToString.Split(CChar("."))(1))
                         End If
                     Case 4 ' File.File.File.Extension; Ex: 18980.1_18985.1_diff.patch. Usually used for Diffs in the Mach2 Repo
                         ' Do Nothing
@@ -354,6 +376,9 @@ Public Class GUI
             Next
 
             Invoke(Sub()
+                       ' Add the Items of tempList to the Combo Box
+                       RDDL_Build.Items.AddRange(tempList)
+
                        ' De-select any Item
                        RDDL_Build.SelectedIndex = -1
 
@@ -427,6 +452,7 @@ Public Class GUI
             RadTD.ShowDialog($" {My.Resources.Error_AnExceptionOccurred}", My.Resources.Error_AnUnknownExceptionOccurred,
             Nothing, RadTaskDialogIcon.ShieldErrorRedBar, ex, ex.ToString, ex.ToString)
         End Try
+#End Region
     End Sub
 
     ''' <summary>
@@ -571,7 +597,7 @@ Public Class GUI
         Dim OFD As New OpenFileDialog With {
             .InitialDirectory = "C:\",
             .Title = My.Resources.LoadManually_PathToAFeatureList,
-            .Filter = String.Format("{0}|*.txt", My.Resources.Generic_FeatureList)
+            .Filter = "Feature List|*.txt"
         }
 
         If OFD.ShowDialog() = DialogResult.OK AndAlso IO.File.Exists(OFD.FileName) Then
@@ -692,6 +718,14 @@ Public Class GUI
     ''' <param name="e">Default EventArgs</param>
     Private Sub BGW_PopulateGridView_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BGW_PopulateGridView.DoWork
         If Not BGW_PopulateGridView.CancellationPending Then
+            If RDDL_Build.Text = "features" Then
+                Invoke(Sub()
+                           MsgBox("Do not load the ""features"" Item inside the Drop Down, this would otherwise create a crash.", MsgBoxStyle.Critical, "debug")
+                           RDDL_Build.SelectedIndex = -1
+                       End Sub)
+                Return
+            End If
+
             ' Debug
             Diagnostics.Debug.WriteLine("Loading Build " & RDDL_Build.Text)
 
@@ -720,99 +754,96 @@ Public Class GUI
             ' Prepare Web Client and download Build TXT
             Dim WebClient As New WebClient With {.Encoding = System.Text.Encoding.UTF8}
             Dim path As String = IO.Path.GetTempPath & "loadedList.txt"
-            WebClient.DownloadFile("https://raw.githubusercontent.com/riverar/mach2/master/" & RDDL_Build.SelectedItem.Tag.ToString & ".txt", path)
+            WebClient.DownloadFile("https://raw.githubusercontent.com/riverar/mach2/master/" & RDDL_Build.Text & ".txt", path)
 
-            ' Fix for _arm64 Feature Lists and Builds that end in .1xxx
-            Dim tmpBuild As String = RDDL_Build.Text
+            ' Fix for _arm64 Feature Lists
             Dim Build As Integer
 
-            ' Remove .1xxx if it exists, example .1001
-            If tmpBuild.Contains(".") Then
-                tmpBuild = tmpBuild.Split(CChar("."))(0)
-            End If
+            ' Continue if Feature List is normal
+            If IsNumeric(RDDL_Build.Text) Then
+                Build = CInt(RDDL_Build.Text)
+            Else
+                ' Remove the /features/*/amd64|arm64 part
+                Dim tempBuild = RDDL_Build.Text.Split(CChar("/"))(3)
 
-            ' Remove _XXXX if it exists, example _arm64
-            If tmpBuild.Contains("_") Then
-                tmpBuild = tmpBuild.Split(CChar("_"))(0)
+                ' Remove everything past the _ Part to get a normal Build Number
+                Build = CInt(tempBuild.Split(CChar("_"))(0))
             End If
-
-            ' Convert the now Split String to an Integer
-            Build = CInt(tmpBuild)
 
             ' For each line add a grid view entry
             For Each Line In IO.File.ReadAllLines(path)
-                    ' Check Line Stage, used for Grouping
-                    Try
-                        If Build >= 17704 Then
-                            If Line = "## Unknown:" Then
-                                LineStage = My.Resources.Generic_Modifiable
-                            ElseIf Line = "## Always Enabled:" Then
-                                LineStage = My.Resources.Generic_AlwaysEnabled
-                            ElseIf Line = "## Enabled By Default:" Then
-                                LineStage = My.Resources.Generic_EnabledByDefault
-                            ElseIf Line = "## Disabled By Default:" Then
-                                LineStage = My.Resources.Generic_DisabledByDefault
-                            ElseIf Line = "## Always Disabled:" Then
-                                LineStage = My.Resources.Generic_AlwaysDisabled
-                            End If
-                        Else
-                            LineStage = My.Resources.Error_SelectBuild17704OrHigherToUseGrouping
+                ' Check Line Stage, used for Grouping
+                Try
+                    If Build >= 17704 Then
+                        If Line = "## Unknown:" Then
+                            LineStage = My.Resources.Generic_Modifiable
+                        ElseIf Line = "## Always Enabled:" Then
+                            LineStage = My.Resources.Generic_AlwaysEnabled
+                        ElseIf Line = "## Enabled By Default:" Then
+                            LineStage = My.Resources.Generic_EnabledByDefault
+                        ElseIf Line = "## Disabled By Default:" Then
+                            LineStage = My.Resources.Generic_DisabledByDefault
+                        ElseIf Line = "## Always Disabled:" Then
+                            LineStage = My.Resources.Generic_AlwaysDisabled
                         End If
-                    Catch ex As Exception
-                        LineStage = My.Resources.Error_Error
-                    End Try
-
-                    ' Split the Line at the :
-                    Dim Str As String() = Line.Split(CChar(":"))
-
-                    ' Remove any Spaces from the first Str Array (Feature Name) and second Str Array (Feature ID)
-                    Str = Str.Select(Function(s) s.Trim).ToArray()
-
-                    ' If the Line is not empty, continue
-                    If Line IsNot "" AndAlso Not Line.Contains("#") Then
-                        ' Get the Feature Enabled State from the currently processing line.
-                        ' RtlFeatureManager.QueryFeatureConfiguration will return Enabled, Disabled or throw a NullReferenceException for Default
-                        Try
-                            Dim State As String = ViVe_API.Feature.Query(CUInt(Str(1)))
-                            Dim Image = Nothing
-
-                            If HasInternetConnection AndAlso DatabaseFunctions.HasDBAvailable AndAlso Not DatabaseFunctions.TableDoesNotExist Then
-                                Dim rows As DataRow() = DatabaseFunctions.Build_DT.Select(String.Format("FeatureName = '{0}'", Str(0)))
-                                If rows.Length >= 1 Then Image = CommentsImg
-                            End If
-
-                            Invoke(Sub() RGV_MainGridView.Rows.Add(Str(0), Str(1), State, LineStage, Image))
-                        Catch ex As Exception
-                            Invoke(Sub() RGV_MainGridView.Rows.Add(Str(0), Str(1), My.Resources.Generic_Default, LineStage))
-                        End Try
+                    Else
+                        LineStage = My.Resources.Error_SelectBuild17704OrHigherToUseGrouping
                     End If
-                Next
+                Catch ex As Exception
+                    LineStage = My.Resources.Error_Error
+                End Try
 
-                ' Move to the first row, remove the selection and change the Status Label to Done.
-                Invoke(Sub()
-                           RGV_MainGridView.CurrentRow = RGV_MainGridView.Rows.Item(0)
-                           RGV_MainGridView.CurrentRow = Nothing
-                           RLE_StatusLabel.Text = My.Resources.Generic_Done
-                       End Sub)
+                ' Split the Line at the :
+                Dim Str As String() = Line.Split(CChar(":"))
 
-                ' Delete Feature List from %TEMP%
-                IO.File.Delete(path)
+                ' Remove any Spaces from the first Str Array (Feature Name) and second Str Array (Feature ID)
+                Str = Str.Select(Function(s) s.Trim).ToArray()
 
-                ' Enable Grouping
-                Dim LineGroup As New Data.GroupDescriptor()
-                LineGroup.GroupNames.Add("FeatureInfo", ComponentModel.ListSortDirection.Ascending)
-                Invoke(Sub() RGV_MainGridView.GroupDescriptors.Add(LineGroup))
+                ' If the Line is not empty, continue
+                If Line IsNot "" AndAlso Not Line.Contains("#") Then
+                    ' Get the Feature Enabled State from the currently processing line.
+                    ' RtlFeatureManager.QueryFeatureConfiguration will return Enabled, Disabled or throw a NullReferenceException for Default
+                    Try
+                        Dim State As String = ViVe_API.Feature.Query(CUInt(Str(1)))
+                        Dim Image = Nothing
 
-                ' Enable Animations and selection
-                Invoke(Sub()
-                           AnimatedPropertySetting.AnimationsEnabled = True
-                           RGV_MainGridView.SelectionMode = GridViewSelectionMode.FullRowSelect
-                       End Sub)
+                        If HasInternetConnection AndAlso DatabaseFunctions.HasDBAvailable AndAlso Not DatabaseFunctions.TableDoesNotExist Then
+                            Dim rows As DataRow() = DatabaseFunctions.Build_DT.Select(String.Format("FeatureName = '{0}'", Str(0)))
+                            If rows.Length >= 1 Then Image = CommentsImg
+                        End If
 
-                ' Make the Search Row Visible
-                Invoke(Sub() RGV_MainGridView.MasterView.TableSearchRow.IsVisible = True)
-            Else
-                Return
+                        Invoke(Sub() RGV_MainGridView.Rows.Add(Str(0), Str(1), State, LineStage, Image))
+                    Catch ex As Exception
+                        Invoke(Sub() RGV_MainGridView.Rows.Add(Str(0), Str(1), My.Resources.Generic_Default, LineStage))
+                    End Try
+                End If
+            Next
+
+            ' Move to the first row, remove the selection and change the Status Label to Done.
+            Invoke(Sub()
+                       RGV_MainGridView.CurrentRow = RGV_MainGridView.Rows.Item(0)
+                       RGV_MainGridView.CurrentRow = Nothing
+                       RLE_StatusLabel.Text = My.Resources.Generic_Done
+                   End Sub)
+
+            ' Delete Feature List from %TEMP%
+            IO.File.Delete(path)
+
+            ' Enable Grouping
+            Dim LineGroup As New Data.GroupDescriptor()
+            LineGroup.GroupNames.Add("FeatureInfo", ComponentModel.ListSortDirection.Ascending)
+            Invoke(Sub() RGV_MainGridView.GroupDescriptors.Add(LineGroup))
+
+            ' Enable Animations and selection
+            Invoke(Sub()
+                       AnimatedPropertySetting.AnimationsEnabled = True
+                       RGV_MainGridView.SelectionMode = GridViewSelectionMode.FullRowSelect
+                   End Sub)
+
+            ' Make the Search Row Visible
+            Invoke(Sub() RGV_MainGridView.MasterView.TableSearchRow.IsVisible = True)
+        Else
+            Return
         End If
     End Sub
 
@@ -951,9 +982,6 @@ Public Class GUI
     ''' <param name="sender">Default sender Object</param>
     ''' <param name="e">Context Menu Opening EventArgs</param>
     Private Sub RGV_MainGridView_ContextMenuOpening(sender As Object, e As ContextMenuOpeningEventArgs) Handles RGV_MainGridView.ContextMenuOpening
-        ' Skip adding the Comment Option if a Internet Connection is missing
-        If Not HasInternetConnection Then Return
-
         ' Skip if the Context Menu is from the Search Bar
         If e.ContextMenuProvider.GetType = GetType(GridSearchCellElement) Then Return
 
@@ -962,6 +990,7 @@ Public Class GUI
                 e.ContextMenu.Items.Add(New RadMenuSeparatorItem())
                 e.ContextMenu.Items.Add(RMI_AddComment)
                 CommentsClient.FeatureName = RGV_MainGridView.SelectedRows.Item(0).Cells(0).Value.ToString
+                CommentsClient.Build = RDDL_Build.Text
             Catch ex As ArgumentException
                 ' Exception that may occur from spam opening the context menu while scrolling down
             Catch ex As NullReferenceException

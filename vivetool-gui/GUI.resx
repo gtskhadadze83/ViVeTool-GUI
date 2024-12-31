@@ -137,6 +137,9 @@
   <data name="RDDL_Build.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
+  <data name="RDDL_Build.Text" xml:space="preserve">
+    <value>Select Build…</value>
+  </data>
   <data name="&gt;&gt;RDDL_Build.Name" xml:space="preserve">
     <value>RDDL_Build</value>
   </data>
@@ -220,18 +223,6 @@
   </data>
   <data name="__DBG_RDDL_Build_SelectedIndexTest.Text" xml:space="preserve">
     <value>RDDL_Build.SelectedIndex = -1</value>
-  </data>
-  <data name="__DBG_SEP6.Text" xml:space="preserve">
-    <value>RadMenuSeparatorItem1</value>
-  </data>
-  <data name="__DBG_SEP6.TextAlignment" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
-  </data>
-  <data name="__DBG_SentryCrashTest_TimeZoneNotFoundException.Text" xml:space="preserve">
-    <value>[Sentry] Throw TimeZoneNotFoundException</value>
-  </data>
-  <data name="__DBG_CustomDebug.Text" xml:space="preserve">
-    <value>Custom Debug</value>
   </data>
   <data name="__DBG_MainBtn.Location" type="System.Drawing.Point, System.Drawing">
     <value>735, 1</value>
@@ -2273,11 +2264,8 @@
         gAEAAP//AAD//wAA
 </value>
   </data>
-  <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>859, 600</value>
-  </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>ViVeTool GUI</value>
+    <value>ViVeTool GUI (v1.7 PRE-RELEASE 2)</value>
   </data>
   <data name="&gt;&gt;__DBG_RHI.Name" xml:space="preserve">
     <value>__DBG_RHI</value>
@@ -2385,24 +2373,6 @@
     <value>__DBG_RDDL_Build_SelectedIndexTest</value>
   </data>
   <data name="&gt;&gt;__DBG_RDDL_Build_SelectedIndexTest.Type" xml:space="preserve">
-    <value>Telerik.WinControls.UI.RadMenuItem, Telerik.WinControls.UI, Version=2021.3.1109.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e</value>
-  </data>
-  <data name="&gt;&gt;__DBG_SEP6.Name" xml:space="preserve">
-    <value>__DBG_SEP6</value>
-  </data>
-  <data name="&gt;&gt;__DBG_SEP6.Type" xml:space="preserve">
-    <value>Telerik.WinControls.UI.RadMenuSeparatorItem, Telerik.WinControls.UI, Version=2021.3.1109.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e</value>
-  </data>
-  <data name="&gt;&gt;__DBG_SentryCrashTest_TimeZoneNotFoundException.Name" xml:space="preserve">
-    <value>__DBG_SentryCrashTest_TimeZoneNotFoundException</value>
-  </data>
-  <data name="&gt;&gt;__DBG_SentryCrashTest_TimeZoneNotFoundException.Type" xml:space="preserve">
-    <value>Telerik.WinControls.UI.RadMenuItem, Telerik.WinControls.UI, Version=2021.3.1109.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e</value>
-  </data>
-  <data name="&gt;&gt;__DBG_CustomDebug.Name" xml:space="preserve">
-    <value>__DBG_CustomDebug</value>
-  </data>
-  <data name="&gt;&gt;__DBG_CustomDebug.Type" xml:space="preserve">
     <value>Telerik.WinControls.UI.RadMenuItem, Telerik.WinControls.UI, Version=2021.3.1109.40, Culture=neutral, PublicKeyToken=5bb2a467cbec794e</value>
   </data>
   <data name="&gt;&gt;RLE_StatusLabel.Name" xml:space="preserve">
