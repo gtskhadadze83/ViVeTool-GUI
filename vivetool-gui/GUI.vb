@@ -216,8 +216,8 @@ Public Class GUI
 #End If
 
         ' Listen to Application Crashes and show CrashReporter.Net if one occurs.
-        AddHandler Application.ThreadException, AddressOf CrashReporter.ApplicationThreadException
-        AddHandler AppDomain.CurrentDomain.UnhandledException, AddressOf CrashReporter.CurrentDomainOnUnhandledException
+        ''' AddHandler Application.ThreadException, AddressOf CrashReporter.ApplicationThreadException
+        ''' AddHandler AppDomain.CurrentDomain.UnhandledException, AddressOf CrashReporter.CurrentDomainOnUnhandledException
 
         ' Comment Code
         AddHandler RMI_AddComment.Click, AddressOf ShowCommentForm
